@@ -15,18 +15,35 @@ class ICS
     private $icsFile;
 
     /**
-     * @param string $file
-     * @return ICS
-     * @throws \ErrorException
+     * @var string
      */
-    public function createICS(string $file): ICS
+    private $timezone = '';
+
+    /**
+     * @param string $file
+     * @param string $timezone
+     * @return ICS
+     */
+    public function createICS(string $file, string $timezone = ''): ICS
     {
+        $this->timezone = $timezone;
+
         $this->icsFile = fopen($file, 'w');
 
         fwrite($this->icsFile, "BEGIN:VCALENDAR\n");
         fwrite($this->icsFile, "VERSION:2.0\n");
         fwrite($this->icsFile, "PRODID:-//hacksw/handcal//NONSGML v1.0//FR\n");
 
+        return $this;
+    }
+
+    /**
+     * @param string $timezone
+     * @return $this
+     */
+    public function setTimezone(string $timezone)
+    {
+        $this->timezone = $timezone;
         return $this;
     }
 
@@ -41,8 +58,12 @@ class ICS
     public function addEvent(string $debut, string $fin, string $titre, string $lieu = '', string $description = ''): ICS
     {
         fwrite($this->icsFile, "BEGIN:VEVENT\n");
-        fwrite($this->icsFile, "DTSTART:" . $this->formatDate($debut) . "Z\n");
-        fwrite($this->icsFile, "DTEND:" . $this->formatDate($fin) . "Z\n");
+        fwrite($this->icsFile, "DTSTART;" .
+            (!empty($this->timezone) ? ('TZID=' . $this->timezone) : '') . ":" . // Timezone handling
+            $this->formatDate($debut) . (empty($this->timezone) ? 'Z' : '') . "\n");
+        fwrite($this->icsFile, "DTEND:" .
+            (!empty($this->timezone) ? ('TZID=' . $this->timezone) : '') . ":" . // Timezone handling
+            $this->formatDate($fin) . (empty($this->timezone) ? 'Z' : '') . "\n");
         fwrite($this->icsFile, "SUMMARY:" . $this->formatText($titre) . "\n");
         fwrite($this->icsFile, "LOCATION:" . $this->formatText($lieu) . "\n");
         fwrite($this->icsFile, "DESCRIPTION:" . $this->formatText($description) . "\n");
@@ -55,8 +76,6 @@ class ICS
     {
         fwrite($this->icsFile, "END:VCALENDAR");
         fclose($this->icsFile);
-
-        nl2br('bite');
     }
 
     /**
