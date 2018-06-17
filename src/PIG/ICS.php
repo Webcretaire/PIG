@@ -61,7 +61,7 @@ class ICS
         fwrite($this->icsFile, "DTSTART;" .
             (!empty($this->timezone) ? ('TZID=' . $this->timezone) : '') . ":" . // Timezone handling
             $this->formatDate($debut) . (empty($this->timezone) ? 'Z' : '') . "\n");
-        fwrite($this->icsFile, "DTEND:" .
+        fwrite($this->icsFile, "DTEND;" .
             (!empty($this->timezone) ? ('TZID=' . $this->timezone) : '') . ":" . // Timezone handling
             $this->formatDate($fin) . (empty($this->timezone) ? 'Z' : '') . "\n");
         fwrite($this->icsFile, "SUMMARY:" . $this->formatText($titre) . "\n");
