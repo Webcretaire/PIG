@@ -33,6 +33,28 @@ class ICS
         fwrite($this->icsFile, "BEGIN:VCALENDAR\n");
         fwrite($this->icsFile, "VERSION:2.0\n");
         fwrite($this->icsFile, "PRODID:-//hacksw/handcal//NONSGML v1.0//FR\n");
+        if (!empty($timezone)) {
+            fwrite($this->icsFile, "BEGIN:VTIMEZONE\n");
+            fwrite($this->icsFile, "TZID:$timezone\n");
+            fwrite($this->icsFile, "X-LIC-LOCATION:$timezone\n");
+            if ($timezone == 'Europe/Paris') {
+                fwrite($this->icsFile, "BEGIN:DAYLIGHT\n");
+                fwrite($this->icsFile, "TZOFFSETFROM:+0100\n");
+                fwrite($this->icsFile, "TZOFFSETTO:+0200\n");
+                fwrite($this->icsFile, "TZNAME:CEST\n");
+                fwrite($this->icsFile, "DTSTART:19700329T020000\n");
+                fwrite($this->icsFile, "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU\n");
+                fwrite($this->icsFile, "END:DAYLIGHT\n");
+                fwrite($this->icsFile, "BEGIN:STANDARD\n");
+                fwrite($this->icsFile, "TZOFFSETFROM:+0200\n");
+                fwrite($this->icsFile, "TZOFFSETTO:+0100\n");
+                fwrite($this->icsFile, "TZNAME:CET\n");
+                fwrite($this->icsFile, "DTSTART:19701025T030000\n");
+                fwrite($this->icsFile, "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\n");
+                fwrite($this->icsFile, "END:STANDARD\n");
+            }
+            fwrite($this->icsFile, "END:VTIMEZONE\n");
+        }
 
         return $this;
     }
