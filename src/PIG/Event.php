@@ -14,22 +14,22 @@ class Event
     /**
      * @var string
      */
-    private $debut;
+    private $start;
 
     /**
      * @var string
      */
-    private $fin;
+    private $end;
 
     /**
      * @var string
      */
-    private $titre;
+    private $title;
 
     /**
      * @var string
      */
-    private $lieu;
+    private $location;
 
     /**
      * @var string
@@ -42,18 +42,18 @@ class Event
     private $timezone;
 
     public function __construct(
-        string $debut,
-        string $fin,
-        string $titre,
-        string $lieu = '',
+        string $start,
+        string $end,
+        string $title,
+        string $location = '',
         string $description = '',
         string $timezone = ''
     )
     {
-        $this->debut       = $debut;
-        $this->fin         = $fin;
-        $this->titre       = $titre;
-        $this->lieu        = $lieu;
+        $this->start       = $start;
+        $this->end         = $end;
+        $this->title       = $title;
+        $this->location    = $location;
         $this->description = $description;
         $this->timezone    = $timezone;
     }
@@ -62,10 +62,10 @@ class Event
     {
         return
             "BEGIN:VEVENT" . PHP_EOL .
-            $this->dateLimit("START", $this->debut) . PHP_EOL .
-            $this->dateLimit("END", $this->fin) . PHP_EOL .
-            "SUMMARY:" . Formatter::text($this->titre) . PHP_EOL .
-            "LOCATION:" . Formatter::text($this->lieu) . PHP_EOL .
+            $this->dateLimit("START", $this->start) . PHP_EOL .
+            $this->dateLimit("END", $this->end) . PHP_EOL .
+            "SUMMARY:" . Formatter::text($this->title) . PHP_EOL .
+            "LOCATION:" . Formatter::text($this->location) . PHP_EOL .
             "DESCRIPTION:" . Formatter::text($this->description) . PHP_EOL .
             "END:VEVENT" . PHP_EOL;
     }

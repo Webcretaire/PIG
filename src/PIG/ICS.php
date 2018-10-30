@@ -6,7 +6,7 @@ namespace PIG;
  * Class ICS
  *
  * Main class, that generates the ICS file
- * @author Julien EMMANUEL <contact@julien-emmanuel.com>
+ * @author  Julien EMMANUEL <contact@julien-emmanuel.com>
  * @package PIG
  */
 class ICS
@@ -22,42 +22,18 @@ class ICS
     private $icsPath;
 
     /**
-     * @var string Timezone name
+     * @var string Timezone name (TZID)
      */
-    private $timezone = '';
+    private $timezone;
 
     /**
-     * Creates the ICS file
-     *
-     * @param string $file
-     * @param string $timezone
-     * @return ICS
-     * @throws PigException
+     * @var array List of events to put in the ICS file
      */
-    public function createICS(string $file, string $timezone = ''): ICS
+    private $events = [];
+
+    public function __construct(string $timezone = '')
     {
-        if(!empty($timezone)) $this->timezone = $timezone;
-        $this->icsPath  = $file;
-        $this->icsFile  = fopen($file, 'w');
-
-        $this->write("BEGIN:VCALENDAR" . PHP_EOL);
-        $this->write("VERSION:2.0" . PHP_EOL);
-        $this->write("PRODID:-//hacksw/handcal//NONSGML v1.0//FR" . PHP_EOL);
-        if (!empty($this->timezone)) {
-            $this->write("BEGIN:VTIMEZONE");
-            $path = __DIR__ . '/../../timezones/' . $this->timezone . '.ics';
-            if (is_file($path)) {
-                // Extract the timezone from the ics template
-                $str = file_get_contents($path);
-                $start = 'BEGIN:VTIMEZONE';
-                $end = 'END:VTIMEZONE';
-                $startIndex = strpos($str, $start) + strlen($start);
-                $this->write(substr($str, $startIndex, strrpos($str, $end) - $startIndex));
-            }
-            $this->write("END:VTIMEZONE" . PHP_EOL);
-        }
-
-        return $this;
+        $this->timezone = $timezone;
     }
 
     /**
@@ -75,35 +51,50 @@ class ICS
     /**
      * Adds an event to the ICS file
      *
-     * @param string $debut
-     * @param string $fin
-     * @param string $titre
-     * @param string $lieu
+     * @param string $start
+     * @param string $end
+     * @param string $title
+     * @param string $location
      * @param string $description
      * @return ICS
-     * @throws PigException
      */
     public function addEvent(
-        string $debut,
-        string $fin,
-        string $titre,
-        string $lieu = '',
+        string $start,
+        string $end,
+        string $title,
+        string $location = '',
         string $description = ''
     ): ICS
     {
-        $this->write((string) new Event($debut, $fin, $titre, $lieu, $description, $this->timezone));
+        $this->events[] = new Event($start, $end, $title, $location, $description, $this->timezone);
 
         return $this;
     }
 
     /**
-     * Saves the file once it has been correctly filled with all events
+     * Saves the file on disk
      *
+     * All events are written to the file which is then closed
+     * @param string $file Path to write to
      * @throws PigException
      */
-    public function saveICS()
+    public function saveICS(string $file)
     {
+        $this->icsPath = $file;
+        $this->icsFile = fopen($file, 'w');
+
+        $this->write("BEGIN:VCALENDAR" . PHP_EOL);
+        $this->write("VERSION:2.0" . PHP_EOL);
+        $this->write("PRODID:-//hacksw/handcal//NONSGML v1.0//FR" . PHP_EOL);
+
+        if (!empty($this->timezone))
+            $this->write($this->extractTimezone());
+
+        foreach ($this->events as $event)
+            $this->write((string) $event);
+
         $this->write("END:VCALENDAR");
+
         if (!fclose($this->icsFile))
             throw new PigException("IO exception : could not close file " . $this->icsPath);
     }
@@ -118,5 +109,27 @@ class ICS
     {
         if (fwrite($this->icsFile, $text) === FALSE)
             throw new PigException("IO exception : could not write to file " . $this->icsPath);
+    }
+
+    /**
+     * Extracts the timezone from an ics template
+     * @return string Timezone data
+     */
+    private function extractTimezone() {
+        $out = '';
+        $path = __DIR__ . '/../../timezones/' . $this->timezone . '.ics';
+
+        if (is_file($path)) {
+            $out .= "BEGIN:VTIMEZONE";
+            $str        = file_get_contents($path);
+            $start      = 'BEGIN:VTIMEZONE';
+            $end        = 'END:VTIMEZONE';
+            $startIndex = strpos($str, $start) + strlen($start);
+            $out .= substr($str, $startIndex, strrpos($str, $end) - $startIndex);
+
+            $out .= "END:VTIMEZONE" . PHP_EOL;
+        }
+
+        return $out;
     }
 }
