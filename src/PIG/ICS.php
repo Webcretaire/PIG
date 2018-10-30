@@ -22,7 +22,7 @@ class ICS
     private $icsPath;
 
     /**
-     * @var string Timezone name
+     * @var string Timezone name (TZID)
      */
     private $timezone = '';
 
@@ -75,23 +75,23 @@ class ICS
     /**
      * Adds an event to the ICS file
      *
-     * @param string $debut
-     * @param string $fin
-     * @param string $titre
-     * @param string $lieu
+     * @param string $start
+     * @param string $end
+     * @param string $title
+     * @param string $location
      * @param string $description
      * @return ICS
      * @throws PigException
      */
     public function addEvent(
-        string $debut,
-        string $fin,
-        string $titre,
-        string $lieu = '',
+        string $start,
+        string $end,
+        string $title,
+        string $location = '',
         string $description = ''
     ): ICS
     {
-        $this->write((string) new Event($debut, $fin, $titre, $lieu, $description, $this->timezone));
+        $this->write((string) new Event($start, $end, $title, $location, $description, $this->timezone));
 
         return $this;
     }
