@@ -21,7 +21,11 @@ class ICSTest extends TestCase
      */
     public function testICS()
     {
-        $ics = new ICS();
+        $dir = __DIR__ . '/../resources';
+
+        if(!is_dir($dir)) mkdir($dir);
+
+        $ics = new ICS('Europe/Paris');
         $ics
             ->addEvent(
                 '2017-10-06 20:15:00',
@@ -37,12 +41,30 @@ with friends and all'
                 '2017-10-07 02:00:00',
                 'House cleaning ...'
             )
-            ->saveICS(__DIR__ . '/../resources/test.ics');
+            ->saveICS($dir . '/test.ics');
 
         // Need to replace new lines, otherwise depending on the line separator of this file, the test could fail
-        $desiredICS = $this->killNewLines("BEGIN:VCALENDAR
+        $desiredICS = "BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//hacksw/handcal//NONSGML v1.0//FR
+BEGIN:VTIMEZONE
+TZID:/citadel.org/20070227_1/Europe/Paris
+X-LIC-LOCATION:Europe/Paris
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
 BEGIN:VEVENT
 DTSTART:20171006T201500Z
 DTEND:20171007T020000Z
@@ -57,11 +79,11 @@ SUMMARY:House cleaning ...
 LOCATION:
 DESCRIPTION:
 END:VEVENT
-END:VCALENDAR");
+END:VCALENDAR";
 
         $this->assertEquals(
-            $desiredICS,
-            $this->killNewLines(file_get_contents(__DIR__ . '/../resources/test.ics'))
+            $this->killNewLines($desiredICS),
+            $this->killNewLines(file_get_contents($dir . '/test.ics'))
         );
     }
 
