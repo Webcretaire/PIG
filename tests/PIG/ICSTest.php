@@ -23,7 +23,6 @@ class ICSTest extends TestCase
     {
         $ics = new ICS();
         $ics
-            ->createICS(__DIR__ . '/../resources/test.ics')
             ->addEvent(
                 '2017-10-06 20:15:00',
                 '2017-10-07 02:00:00',
@@ -38,7 +37,7 @@ with friends and all'
                 '2017-10-07 02:00:00',
                 'House cleaning ...'
             )
-            ->saveICS();
+            ->saveICS(__DIR__ . '/../resources/test.ics');
 
         // Need to replace new lines, otherwise depending on the line separator of this file, the test could fail
         $desiredICS = $this->killNewLines("BEGIN:VCALENDAR
