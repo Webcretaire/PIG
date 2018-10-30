@@ -12,12 +12,12 @@ namespace PIG;
 class Event
 {
     /**
-     * @var string
+     * @var \DateTime
      */
     private $start;
 
     /**
-     * @var string
+     * @var \DateTime
      */
     private $end;
 
@@ -42,8 +42,8 @@ class Event
     private $timezone;
 
     public function __construct(
-        string $start,
-        string $end,
+        \DateTime $start,
+        \DateTime $end,
         string $title,
         string $location = '',
         string $description = '',
@@ -58,6 +58,12 @@ class Event
         $this->timezone    = $timezone;
     }
 
+    /**
+     * String representation of an event
+     *
+     * To be written directly in an ICS file
+     * @return string
+     */
     public function __toString(): string
     {
         return
@@ -70,7 +76,13 @@ class Event
             "END:VEVENT" . PHP_EOL;
     }
 
-    private function dateLimit(string $type, string $date)
+    /**
+     * Formats a date depending on the type and timezone
+     * @param string $type "START" or "END"
+     * @param \DateTime $date The actual date, in string format
+     * @return string The line to be written to the ICS file
+     */
+    private function dateLimit(string $type, \DateTime $date)
     {
         return "DT" . $type . (!empty($this->timezone) ? (';TZID=' . $this->timezone) : '') . ":" .
             Formatter::date($date) . (empty($this->timezone) ? 'Z' : '');

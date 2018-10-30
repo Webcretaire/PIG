@@ -51,21 +51,25 @@ class ICS
     /**
      * Adds an event to the ICS file
      *
-     * @param string $start
-     * @param string $end
+     * @param string|\DateTime $start Start of the event, either in Datetime or String format
+     * @param string|\DateTime $end Start of the event, either in Datetime or String format
      * @param string $title
-     * @param string $location
-     * @param string $description
+     * @param string $location Optionnal
+     * @param string $description Optionnal
      * @return ICS
      */
     public function addEvent(
-        string $start,
-        string $end,
+        $start,
+        $end,
         string $title,
         string $location = '',
         string $description = ''
     ): ICS
     {
+        if(!($start instanceof \DateTime)) $start = new \DateTime($start);
+
+        if(!($end instanceof \DateTime)) $end = new \DateTime($end);
+
         $this->events[] = new Event($start, $end, $title, $location, $description, $this->timezone);
 
         return $this;
@@ -81,7 +85,8 @@ class ICS
     public function saveICS(string $file)
     {
         $this->icsPath = $file;
-        $this->icsFile = fopen($file, 'w');
+        if(!$this->icsFile = fopen($file, 'w'))
+            throw new PigException("IO exception : could not open file " . $this->icsPath);
 
         $this->write("BEGIN:VCALENDAR" . PHP_EOL);
         $this->write("VERSION:2.0" . PHP_EOL);

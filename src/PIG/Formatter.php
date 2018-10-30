@@ -14,12 +14,12 @@ class Formatter
     /**
      * Formats a date to be used in an ICS file
      *
-     * @param string $date
+     * @param \DateTime $date
      * @return string
      */
-    public static function date(string $date): string
+    public static function date(\DateTime $date): string
     {
-        return date('Ymd\THis', strtotime($date));
+        return $date->format('Ymd\THis');
     }
 
     /**
