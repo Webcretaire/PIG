@@ -6,6 +6,7 @@ namespace PIG;
  * Class ICS
  *
  * Main class, that generates the ICS file
+ * @author Julien EMMANUEL <contact@julien-emmanuel.com>
  * @package PIG
  */
 class ICS
@@ -35,18 +36,18 @@ class ICS
      */
     public function createICS(string $file, string $timezone = ''): ICS
     {
-        $this->timezone = $timezone;
-        $this->icsPath = $file;
-        $this->icsFile = fopen($file, 'w');
+        if(!empty($timezone)) $this->timezone = $timezone;
+        $this->icsPath  = $file;
+        $this->icsFile  = fopen($file, 'w');
 
         $this->write("BEGIN:VCALENDAR" . PHP_EOL);
         $this->write("VERSION:2.0" . PHP_EOL);
         $this->write("PRODID:-//hacksw/handcal//NONSGML v1.0//FR" . PHP_EOL);
-        if (!empty($timezone)) {
+        if (!empty($this->timezone)) {
             $this->write("BEGIN:VTIMEZONE" . PHP_EOL);
-            $this->write("TZID:$timezone" . PHP_EOL);
-            $this->write("X-LIC-LOCATION:$timezone" . PHP_EOL);
-            if ($timezone == 'Europe/Paris') {
+            $this->write("TZID:{$this->timezone}" . PHP_EOL);
+            $this->write("X-LIC-LOCATION:{$this->timezone}" . PHP_EOL);
+            if ($this->timezone == 'Europe/Paris') {
                 $this->write("BEGIN:DAYLIGHT" . PHP_EOL);
                 $this->write("TZOFFSETFROM:+0100" . PHP_EOL);
                 $this->write("TZOFFSETTO:+0200" . PHP_EOL);
@@ -91,19 +92,15 @@ class ICS
      * @return ICS
      * @throws PigException
      */
-    public function addEvent(string $debut, string $fin, string $titre, string $lieu = '', string $description = ''): ICS
+    public function addEvent(
+        string $debut,
+        string $fin,
+        string $titre,
+        string $lieu = '',
+        string $description = ''
+    ): ICS
     {
-        $this->write("BEGIN:VEVENT" . PHP_EOL);
-        $this->write("DTSTART" .
-            (!empty($this->timezone) ? (';TZID=' . $this->timezone) : '') . ":" . // Timezone handling
-            $this->formatDate($debut) . (empty($this->timezone) ? 'Z' : '') . PHP_EOL);
-        $this->write("DTEND" .
-            (!empty($this->timezone) ? (';TZID=' . $this->timezone) : '') . ":" . // Timezone handling
-            $this->formatDate($fin) . (empty($this->timezone) ? 'Z' : '') . PHP_EOL);
-        $this->write("SUMMARY:" . $this->formatText($titre) . PHP_EOL);
-        $this->write("LOCATION:" . $this->formatText($lieu) . PHP_EOL);
-        $this->write("DESCRIPTION:" . $this->formatText($description) . PHP_EOL);
-        $this->write("END:VEVENT" . PHP_EOL);
+        $this->write((string) new Event($debut, $fin, $titre, $lieu, $description));
 
         return $this;
     }
@@ -118,36 +115,6 @@ class ICS
         $this->write("END:VCALENDAR");
         if (!fclose($this->icsFile))
             throw new PigException("IO exception : could not close file " . $this->icsPath);
-    }
-
-    /**
-     * Formats a date to be used in an ICS file
-     *
-     * @param string $date
-     * @return string
-     */
-    private function formatDate(string $date): string
-    {
-        return date('Ymd\THis', strtotime($date));
-    }
-
-    /**
-     * Formats a text to be used in an ICS file
-     *
-     * @param string $text
-     * @return string
-     */
-    private function formatText(string $text): string
-    {
-        return preg_replace(
-            '/([\,;])/',
-            '\\\$1',
-            (str_replace(
-                ["\r\n", "\r", "\n"],
-                '\n',
-                $text)
-            )
-        );
     }
 
     /**
