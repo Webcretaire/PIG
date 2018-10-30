@@ -44,24 +44,15 @@ class ICS
         $this->write("VERSION:2.0" . PHP_EOL);
         $this->write("PRODID:-//hacksw/handcal//NONSGML v1.0//FR" . PHP_EOL);
         if (!empty($this->timezone)) {
-            $this->write("BEGIN:VTIMEZONE" . PHP_EOL);
-            $this->write("TZID:{$this->timezone}" . PHP_EOL);
-            $this->write("X-LIC-LOCATION:{$this->timezone}" . PHP_EOL);
-            if ($this->timezone == 'Europe/Paris') {
-                $this->write("BEGIN:DAYLIGHT" . PHP_EOL);
-                $this->write("TZOFFSETFROM:+0100" . PHP_EOL);
-                $this->write("TZOFFSETTO:+0200" . PHP_EOL);
-                $this->write("TZNAME:CEST" . PHP_EOL);
-                $this->write("DTSTART:19700329T020000" . PHP_EOL);
-                $this->write("RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU" . PHP_EOL);
-                $this->write("END:DAYLIGHT" . PHP_EOL);
-                $this->write("BEGIN:STANDARD" . PHP_EOL);
-                $this->write("TZOFFSETFROM:+0200" . PHP_EOL);
-                $this->write("TZOFFSETTO:+0100" . PHP_EOL);
-                $this->write("TZNAME:CET" . PHP_EOL);
-                $this->write("DTSTART:19701025T030000" . PHP_EOL);
-                $this->write("RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU" . PHP_EOL);
-                $this->write("END:STANDARD" . PHP_EOL);
+            $this->write("BEGIN:VTIMEZONE");
+            $path = __DIR__ . '/../../timezones/' . $this->timezone . '.ics';
+            if (is_file($path)) {
+                // Extract the timezone from the ics template
+                $str = file_get_contents($path);
+                $start = 'BEGIN:VTIMEZONE';
+                $end = 'END:VTIMEZONE';
+                $startIndex = strpos($str, $start) + strlen($start);
+                $this->write(substr($str, $startIndex, strrpos($str, $end) - $startIndex));
             }
             $this->write("END:VTIMEZONE" . PHP_EOL);
         }
@@ -100,7 +91,7 @@ class ICS
         string $description = ''
     ): ICS
     {
-        $this->write((string) new Event($debut, $fin, $titre, $lieu, $description));
+        $this->write((string) new Event($debut, $fin, $titre, $lieu, $description, $this->timezone));
 
         return $this;
     }
