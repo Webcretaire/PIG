@@ -8,13 +8,16 @@ use PIG\ICS;
 /**
  * Class RouterTest
  *
- * @author Julien EMMANUEL <JuEm0406@gmail.com>
+ * @author Julien EMMANUEL <contact@julien-emmanuel.com>
  * @package DiggyRouter\Tests
  */
 class ICSTest extends TestCase
 {
     /**
-     * @covers ICS
+     * @covers ICS::createICS
+     * @covers ICS::addEvent
+     * @covers ICS::saveICS
+     * @throws \PIG\PigException
      */
     public function testICS()
     {
