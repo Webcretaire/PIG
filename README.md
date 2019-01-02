@@ -1,4 +1,7 @@
 # PIG
+
+[![Latest Stable Version](https://poser.pugx.org/webcretaire/pig/v/stable)](https://packagist.org/packages/webcretaire/pig)
+
 Simple ICS generator for PHP
 
 ### Usage
