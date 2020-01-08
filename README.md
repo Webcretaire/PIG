@@ -1,6 +1,7 @@
 # PIG
 
 [![Latest Stable Version](https://poser.pugx.org/webcretaire/pig/v/stable)](https://packagist.org/packages/webcretaire/pig)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Webcretaire_PIG&metric=alert_status)](https://sonarcloud.io/dashboard?id=Webcretaire_PIG)
 
 Simple ICS generator for PHP
 
